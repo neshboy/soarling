@@ -1,0 +1,52 @@
+{
+  "name": "soarling",
+  "version": "0.1.0",
+  "description": "A lightweight runbook-as-code engine for incident response: versioned, executable diagnostic playbooks bound to alert rules, with a hard human-confirmation gate before any command runs.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "soarling": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.2",
+    "vitest": "^5.0.1"
+  },
+  "keywords": [
+    "incident-response",
+    "runbook",
+    "soar",
+    "alertmanager",
+    "on-call",
+    "sre"
+  ]
+}
