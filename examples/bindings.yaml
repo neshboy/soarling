@@ -1,0 +1,18 @@
+# Maps incoming Alertmanager alerts to a runbook file, by alertname and
+# (optionally) an exact-match subset of labels. The first matching entry
+# wins. Paths in "runbook" are resolved relative to this file's directory.
+version: 1
+bindings:
+  - match:
+      alertname: HighCPUUsage
+      labels:
+        severity: critical
+    runbook: runbooks/high-cpu.yaml
+
+  - match:
+      alertname: HighCPUUsage
+    runbook: runbooks/high-cpu.yaml
+
+  - match:
+      alertname: DiskSpaceLow
+    runbook: runbooks/disk-full.yaml

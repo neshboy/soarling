@@ -1,0 +1,62 @@
+# Example runbook: high CPU usage on a host.
+#
+# Run it with:
+#   soarling run examples/runbooks/high-cpu.yaml
+#
+# Every "shell" step below will pause and ask for explicit confirmation
+# before it runs anything.
+id: high-cpu-usage
+version: 1
+name: "High CPU Usage"
+description: "Diagnose sustained high CPU load on a host before deciding whether to restart anything."
+
+steps:
+  - id: check-load
+    type: shell
+    description: "Look at the current load average and process list."
+    command: "uptime"
+
+  - id: load-is-high
+    type: check
+    description: "Confirm the captured output actually mentions a load average before acting on it."
+    against: check-load
+    field: stdout
+    operator: contains
+    value: "load average"
+    onTrue: inspect-top-process
+    onFalse: end
+
+  - id: inspect-top-process
+    type: shell
+    description: "List the top CPU consumers."
+    command: "ps -eo pid,comm,%cpu --sort=-%cpu | head -n 6"
+    next: notify-oncall-secondary
+
+  - id: notify-oncall-secondary
+    type: manual
+    description: "Loop in the secondary on-call before taking any mitigating action."
+    instructions: "Post the top-process output above in the incident channel and page the secondary on-call engineer."
+
+  - id: decide-mitigation
+    type: decision
+    description: "Decide how to mitigate."
+    prompt: "How should we mitigate the high CPU load?"
+    options:
+      - label: "restart-worker"
+        next: restart-worker
+      - label: "scale-out"
+        next: scale-out
+      - label: "monitor-only"
+        next: end
+
+  - id: restart-worker
+    type: shell
+    description: "Restart the worker process suspected of runaway CPU use."
+    command: "echo '[example] would run: systemctl restart example-worker'"
+    next: end
+
+  - id: scale-out
+    type: shell
+    description: "Add one more worker instance to spread load."
+    command: "echo '[example] would run: kubectl scale deployment/example-worker --replicas=+1'"
+    next: end

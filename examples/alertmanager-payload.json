@@ -1,0 +1,34 @@
+{
+  "version": "4",
+  "groupKey": "{}:{alertname=\"HighCPUUsage\"}",
+  "status": "firing",
+  "receiver": "soarling-webhook",
+  "groupLabels": { "alertname": "HighCPUUsage" },
+  "commonLabels": {
+    "alertname": "HighCPUUsage",
+    "severity": "critical",
+    "instance": "web-03:9100"
+  },
+  "commonAnnotations": {
+    "summary": "CPU load has been above 90% for 10 minutes"
+  },
+  "externalURL": "http://alertmanager.internal:9093",
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "HighCPUUsage",
+        "severity": "critical",
+        "instance": "web-03:9100"
+      },
+      "annotations": {
+        "summary": "CPU load has been above 90% for 10 minutes",
+        "description": "web-03 has reported >90% CPU utilization for over 10 minutes."
+      },
+      "startsAt": "2026-09-24T18:02:00Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.internal:9090/graph?g0.expr=...",
+      "fingerprint": "a1b2c3d4e5f60718"
+    }
+  ]
+}

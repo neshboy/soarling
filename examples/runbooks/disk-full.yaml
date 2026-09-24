@@ -1,0 +1,41 @@
+# Example runbook: a filesystem is nearly full.
+id: disk-space-low
+version: 1
+name: "Disk Space Low"
+description: "Find out what is consuming disk space before deleting anything."
+
+steps:
+  - id: check-disk-usage
+    type: shell
+    description: "Show filesystem usage."
+    command: "df -h"
+
+  - id: usage-is-reported
+    type: check
+    description: "Sanity-check that df actually returned a usage table."
+    against: check-disk-usage
+    operator: exitCodeEquals
+    value: 0
+    onTrue: find-large-dirs
+    onFalse: end
+
+  - id: find-large-dirs
+    type: shell
+    description: "Find the largest directories under /var/log as a likely culprit."
+    command: "du -sh /var/log/* 2>/dev/null | sort -rh | head -n 10"
+    next: confirm-cleanup
+
+  - id: confirm-cleanup
+    type: decision
+    prompt: "Large log directory found. Proceed with cleanup?"
+    options:
+      - label: "yes"
+        next: clean-old-logs
+      - label: "no"
+        next: end
+
+  - id: clean-old-logs
+    type: shell
+    description: "Remove rotated logs older than 14 days."
+    command: "find /var/log -name '*.gz' -mtime +14 -print"
+    next: end
