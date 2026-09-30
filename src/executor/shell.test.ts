@@ -45,5 +45,22 @@ describe("runShellCommand (real child process)", () => {
       { timeoutMs: 200 }
     );
     expect(result.timedOut).toBe(true);
+    // Regression guard: a prior bug called child.kill() once but never
+    // resolved until the process exited on its own, so this only failed if
+    // you measured wall-clock time - asserting just `timedOut` passed even
+    // when the command actually ran for the full 5000ms.
+    expect(result.durationMs).toBeLessThan(2000);
+  }, 10000);
+
+  it("kills every process in a real child process tree, not just the immediate shell", async () => {
+    // Windows `ping` and POSIX `sleep` both run for far longer than the
+    // 500ms timeout below; if only the outer shell were killed (and not
+    // the whole tree), this real subprocess would keep running against
+    // the host for its full ~30s/~3s duration.
+    const command =
+      process.platform === "win32" ? "ping -n 30 127.0.0.1 > nul" : "sleep 3";
+    const result = await runShellCommand(command, { timeoutMs: 500 });
+    expect(result.timedOut).toBe(true);
+    expect(result.durationMs).toBeLessThan(2000);
   }, 10000);
 });
