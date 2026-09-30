@@ -220,6 +220,16 @@ function parseCheckStep(obj: Record<string, unknown>, where: string): CheckStep 
       "invalid-schema"
     );
   }
+  if (operator === "matches") {
+    try {
+      new RegExp(String(obj.value));
+    } catch (err) {
+      throw new RunbookValidationError(
+        `${where} field "value" is not a valid regular expression: ${(err as Error).message}`,
+        "invalid-schema"
+      );
+    }
+  }
 
   return {
     id: obj.id as string,

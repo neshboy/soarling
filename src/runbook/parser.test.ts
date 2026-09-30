@@ -197,6 +197,27 @@ steps:
     expect(() => parseRunbook(yaml)).toThrow(/requires a numeric "value"/);
   });
 
+  it("rejects a check step using operator \"matches\" with a syntactically invalid regular expression", () => {
+    // Regression guard: this used to pass `soarling validate` and only blow
+    // up later, as a raw unhandled error, when `soarling run` actually
+    // evaluated the check step.
+    const yaml = `
+id: check-bad-regex
+version: 1
+name: Test
+steps:
+  - id: a
+    type: shell
+    command: "echo hi"
+  - id: b
+    type: check
+    against: a
+    operator: matches
+    value: "[unclosed"
+`;
+    expect(() => parseRunbook(yaml)).toThrow(/not a valid regular expression/);
+  });
+
   it("rejects a check step referencing a step that appears LATER in the list", () => {
     const yaml = `
 id: check-forward-ref
